@@ -1,0 +1,355 @@
+/*%FSM<COMPILE "D:\SteamLibrary\steamapps\common\Arma 3 Tools\FSMEditor\scriptedFSM.cfg, reinforcementManager">*/
+/*%FSM<HEAD>*/
+/*
+item0[] = {"Init",0,250,-1056.013428,-765.445679,-966.012085,-715.445679,0.000000,"Init"};
+item1[] = {"No_Respawn_Positions",4,218,-1056.640991,-695.801880,-966.641113,-645.801880,0.000000,"No Respawn" \n "Positions" \n "and players dead"};
+item2[] = {"spawn_heli_and_",2,4346,-1055.344482,-437.948639,-965.343872,-387.948639,0.000000,"spawn heli" \n "and  create" \n "waypoint"};
+item3[] = {"pos_set",4,218,-1055.055908,-535.276550,-965.055908,-485.276550,0.000000,"pos set"};
+item4[] = {"",7,210,-1162.733154,-674.950867,-1154.733154,-666.950867,0.000000,""};
+item5[] = {"add_eventhandler",2,250,-1055.099609,-618.643738,-965.099731,-568.643738,0.000000,"add eventhandler" \n "to group leader"};
+item6[] = {"player_all__alive",4,218,-927.546814,-620.358215,-837.546875,-570.358215,0.000000,"player all " \n "alive" \n "(respawned elsewhere?)"};
+item7[] = {"cancel",2,250,-927.546875,-695.426880,-837.546814,-645.426880,0.000000,"cancel"};
+item8[] = {"no_respawns",4,218,-1057.076660,-852.367981,-967.076172,-802.368042,0.000000,"no respawns"};
+item9[] = {"exit",1,250,-1054.256836,-935.421448,-964.255981,-885.421509,0.000000,"exit"};
+item10[] = {"far_away",4,218,-1051.201660,-1.220367,-961.201904,48.779633,0.000000,"far away"};
+item11[] = {"no_players_in_he",4,218,-1051.178467,-179.757782,-961.178223,-129.757782,0.000000,"no players" \n "in heli"};
+item12[] = {"move_chopper_back",2,250,-1050.750000,-99.007111,-960.750305,-49.007111,0.000000,"move chopper" \n "back towards" \n "base"};
+item13[] = {"de_spawn",2,250,-1204.562622,-1.206726,-1114.562622,48.793274,0.000000,"de-spawn"};
+item14[] = {"near_LZ_and_player",4,218,-1054.011230,-346.677795,-964.011230,-296.677795,0.000000,"near LZ" \n "and player in hlei"};
+item15[] = {"land",2,250,-1050.386475,-261.439789,-960.386475,-211.439789,0.000000,"land"};
+link0[] = {0,1};
+link1[] = {0,8};
+link2[] = {1,5};
+link3[] = {2,14};
+link4[] = {3,2};
+link5[] = {4,1};
+link6[] = {5,3};
+link7[] = {5,6};
+link8[] = {5,8};
+link9[] = {6,7};
+link10[] = {7,1};
+link11[] = {8,9};
+link12[] = {10,13};
+link13[] = {11,12};
+link14[] = {12,10};
+link15[] = {13,4};
+link16[] = {14,15};
+link17[] = {15,11};
+globals[] = {0.000000,0,0,0,0,640,480,1,611,6316128,1,-1682.512207,-127.721802,311.856995,-975.079041,1515,1254,1};
+window[] = {2,-1,-1,-1,-1,1053,286,1509,286,3,1533};
+*//*%FSM</HEAD>*/
+class FSM
+{
+        fsmName = "reinforcementManager";
+        class States
+        {
+                /*%FSM<STATE "Init">*/
+                class Init
+                {
+                        name = "Init";
+                        itemno = 0;
+                        init = /*%FSM<STATEINIT""">*/"posSet = 0;" \n
+                         "publicVariable ""posSet"";"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "no_respawns">*/
+                                class no_respawns
+                                {
+                                        itemno = 8;
+                                        priority = 0.000000;
+                                        to="exit";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"([west] call BIS_fnc_respawnTickets)==0"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                                /*%FSM<LINK "No_Respawn_Positions">*/
+                                class No_Respawn_Positions
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="add_eventhandler";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"(count [[west] call BIS_fnc_getRespawnPositions])<=1" \n
+                                         "&&" \n
+                                         "([west] call BIS_fnc_respawnTickets)>0" \n
+                                         "&&" \n
+                                         "( { alive _x } count allPlayers ) < count allPlayers"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "spawn_heli_and_">*/
+                class spawn_heli_and_
+                {
+                        name = "spawn_heli_and_";
+                        itemno = 2;
+                        init = /*%FSM<STATEINIT""">*/"{" \n
+                         "	[west,""HQ""] sideChat ""Got a visual on your smoke. Reinforcements inbound, secure the LZ"";" \n
+                         "	hint ""Location set, reinforcement heli inbound on smoke"";" \n
+                         "} remoteExec [""call"",allPlayers];" \n
+                         "" \n
+                         "{ _x removeEventHandler [""Fired"",0]} forEach allPlayers;" \n
+                         "" \n
+                         "insertionGroup = createGroup [West,true];" \n
+                         "" \n
+                         "[getPosATL e_spwnPos_insertHeli, 258.899, ""B_Heli_Transport_01_F"", insertionGroup] call BIS_fnc_spawnVehicle;" \n
+                         "insertHeli = vehicle leader insertionGroup;" \n
+                         "publicVariable ""insertHeli"";" \n
+                         "" \n
+                         "insertionGroup setBehaviour ""CARELESS"";" \n
+                         "" \n
+                         "execVM ""functions\respawnMarker.sqf"";" \n
+                         "" \n
+                         "_wp = insertionGroup addWaypoint [landPos, 0];" \n
+                         "_wp setWaypointType ""TR UNLOAD"";" \n
+                         "" \n
+                         "_newMrk = createMarker [""respawn_West"", getPos leader insertionGroup];" \n
+                         """respawn_West"" setMarkerText ""Reinforcements Insertion Heli"";" \n
+                         """respawn_West"" setMarkerType ""respawn_air"";" \n
+                         "" \n
+                         "_movingMarker = [] spawn" \n
+                         "{" \n
+                         "	while {posSet ==1} do" \n
+                         "	{" \n
+                         "		""respawn_West"" setMarkerPos getPos (vehicle leader insertionGroup);" \n
+                         "		sleep 0.5;" \n
+                         "	};" \n
+                         "};" \n
+                         ""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "near_LZ_and_player">*/
+                                class near_LZ_and_player
+                                {
+                                        itemno = 14;
+                                        priority = 0.000000;
+                                        to="land";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"{ alive _x && _x in insertHeli } count allPlayers > 0" \n
+                                         "&&" \n
+                                         "insertHeli distance landPos <400"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "add_eventhandler">*/
+                class add_eventhandler
+                {
+                        name = "add_eventhandler";
+                        itemno = 5;
+                        init = /*%FSM<STATEINIT""">*/"{" \n
+                         "	[west,""HQ""] sideChat ""Nomad, reinforcements on route, mark an LZ with blue smoke"";" \n
+                         "	hint ""Players awaiting respawn. Locate a suitable LZ and throw a smoke for the reinforcement chopper to land at"";" \n
+                         "" \n
+                         "	player addEventHandler [""Fired"", { if ((_this select 4) == ""SmokeShellBlue"") then" \n
+                         "																											{" \n
+                         "																												(_this select 6) spawn" \n
+                         "																													{" \n
+                         "																														sleep 1;" \n
+                         "																														waitUntil {(speed _this <= 0) || (!alive _this)};" \n
+                         "" \n
+                         "																															landPos = getPos _this;" \n
+                         "																															publicVariable ""landPos"";" \n
+                         "																															posSet = 1;" \n
+                         "																															publicVariable ""posSet"";" \n
+                         "" \n
+                         "																															landingPad = ""Land_HelipadEmpty_F"" createVehicle landPos;" \n
+                         "																															publicVariable ""landingPad"";" \n
+                         "" \n
+                         "																														};" \n
+                         "																												};" \n
+                         "													}" \n
+                         "									];" \n
+                         "} remoteExec [""call"",allPlayers];" \n
+                         "" \n
+                         "" \n
+                         "	" \n
+                         "" \n
+                         ""/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "player_all__alive">*/
+                                class player_all__alive
+                                {
+                                        itemno = 6;
+                                        priority = 0.000000;
+                                        to="cancel";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"posSet == 0" \n
+                                         "&&" \n
+                                         "( { alive _x } count allPlayers ) == count allPlayers"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                                /*%FSM<LINK "no_respawns">*/
+                                class no_respawns
+                                {
+                                        itemno = 8;
+                                        priority = 0.000000;
+                                        to="exit";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"([west] call BIS_fnc_respawnTickets)==0"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                                /*%FSM<LINK "pos_set">*/
+                                class pos_set
+                                {
+                                        itemno = 3;
+                                        priority = 0.000000;
+                                        to="spawn_heli_and_";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"posSet == 1"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "cancel">*/
+                class cancel
+                {
+                        name = "cancel";
+                        itemno = 7;
+                        init = /*%FSM<STATEINIT""">*/"{ _x removeEventHandler [""Fired"",0]} forEach allPlayers;" \n
+                         "hint ""Reinforcements cancelled"";"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "No_Respawn_Positions">*/
+                                class No_Respawn_Positions
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="add_eventhandler";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"(count [[west] call BIS_fnc_getRespawnPositions])<=1" \n
+                                         "&&" \n
+                                         "([west] call BIS_fnc_respawnTickets)>0" \n
+                                         "&&" \n
+                                         "( { alive _x } count allPlayers ) < count allPlayers"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "exit">*/
+                class exit
+                {
+                        name = "exit";
+                        itemno = 9;
+                        init = /*%FSM<STATEINIT""">*/"{ _x removeEventHandler [""Fired"",0]} forEach allPlayers"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "move_chopper_back">*/
+                class move_chopper_back
+                {
+                        name = "move_chopper_back";
+                        itemno = 12;
+                        init = /*%FSM<STATEINIT""">*/"while {(count (waypoints insertionGroup)) > 0} do" \n
+                         "{" \n
+                         "	deleteWaypoint ((waypoints insertionGroup) select 0);" \n
+                         "};" \n
+                         "" \n
+                         "_wp = insertionGroup addWaypoint [getMarkerPos ""mrk_Airbase"", 0];" \n
+                         "" \n
+                         "posSet = 0;" \n
+                         "publicVariable ""posSet"";" \n
+                         "" \n
+                         "deleteVehicle landingPad;"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "far_away">*/
+                                class far_away
+                                {
+                                        itemno = 10;
+                                        priority = 0.000000;
+                                        to="de_spawn";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"insertHeli distance landPos >5000"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "de_spawn">*/
+                class de_spawn
+                {
+                        name = "de_spawn";
+                        itemno = 13;
+                        init = /*%FSM<STATEINIT""">*/"deleteVehicle insertHeli;" \n
+                         "{ deleteVehicle _x } forEach units insertionGroup;" \n
+                         "" \n
+                         "deleteMarker ""respawn_west"";" \n
+                         "	"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "No_Respawn_Positions">*/
+                                class No_Respawn_Positions
+                                {
+                                        itemno = 1;
+                                        priority = 0.000000;
+                                        to="add_eventhandler";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"(count [[west] call BIS_fnc_getRespawnPositions])<=1" \n
+                                         "&&" \n
+                                         "([west] call BIS_fnc_respawnTickets)>0" \n
+                                         "&&" \n
+                                         "( { alive _x } count allPlayers ) < count allPlayers"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+                /*%FSM<STATE "land">*/
+                class land
+                {
+                        name = "land";
+                        itemno = 15;
+                        init = /*%FSM<STATEINIT""">*/"_land = [] spawn" \n
+                         "{" \n
+                         "	waitUntil { ((getPosASL insertHeli) select 2)<6 };" \n
+                         "		{ _x action [ ""Eject"", vehicle _x ] } forEach allPlayers; " \n
+                         "};"/*%FSM</STATEINIT""">*/;
+                        precondition = /*%FSM<STATEPRECONDITION""">*/""/*%FSM</STATEPRECONDITION""">*/;
+                        class Links
+                        {
+                                /*%FSM<LINK "no_players_in_he">*/
+                                class no_players_in_he
+                                {
+                                        itemno = 11;
+                                        priority = 0.000000;
+                                        to="move_chopper_back";
+                                        precondition = /*%FSM<CONDPRECONDITION""">*/""/*%FSM</CONDPRECONDITION""">*/;
+                                        condition=/*%FSM<CONDITION""">*/"{ alive _x && _x in insertHeli } count allPlayers == 0"/*%FSM</CONDITION""">*/;
+                                        action=/*%FSM<ACTION""">*/""/*%FSM</ACTION""">*/;
+                                };
+                                /*%FSM</LINK>*/
+                        };
+                };
+                /*%FSM</STATE>*/
+        };
+        initState="Init";
+        finalStates[] =
+        {
+                "exit",
+        };
+};
+/*%FSM</COMPILE>*/
